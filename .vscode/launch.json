@@ -8,7 +8,7 @@
             "name": "Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/astar",
+            "program": "${workspaceFolder}/build/frenet",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

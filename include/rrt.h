@@ -79,7 +79,7 @@ std::vector<Node*> RRT::planning(){
 	int count=0;
 	int img_size = (int)(rand_area[1] - rand_area[0]);
 	int img_reso = 50;
-  cv::Mat bg(img_size * img_reso, img_size * img_reso,
+  	cv::Mat bg(img_size * img_reso, img_size * img_reso,
              CV_8UC3, cv::Scalar(255,255,255));
 
 	cv::circle(bg, cv::Point((int)((start->x-rand_area[0])*img_reso), (int)((start->y-rand_area[0])*img_reso)), 20, cv::Scalar(0,0,255), -1);
@@ -101,6 +101,9 @@ std::vector<Node*> RRT::planning(){
 			rnd.push_back(end->x);
 			rnd.push_back(end->y);
 		}
+
+		cv::circle(bg, cv::Point((int)((rnd[0] - rand_area[0])*img_reso), (int)((rnd[1] - rand_area[0])*img_reso)), 10, cv::Scalar(255,192,203), -1);
+
 
 		Node* nearest_node =  GetNearestNode(rnd);
 
@@ -124,7 +127,7 @@ std::vector<Node*> RRT::planning(){
 		// cv::imwrite("./pngs/"+std::string(5-int_count.length(), '0').append(int_count)+".png", bg);
 		count++;
 		cv::imshow("rrt", bg);
-		cv::waitKey(5);
+		cv::waitKey(500);
 
 		if (std::sqrt(std::pow((new_node->x - end->x), 2) + std::pow((new_node->y - end->y), 2)) <= expand_dis){
 			std::cout<<"find path"<<std::endl;
@@ -151,7 +154,7 @@ std::vector<Node*> RRT::planning(){
 	// std::string int_count = std::to_string(count);
 	// cv::imwrite("./pngs/"+std::string(5-int_count.length(), '0').append(int_count)+".png", bg);
 	cv::imshow("rrt", bg);
-	cv::waitKey(5);
+	cv::waitKey(50000);
 
 	path.push_back(start);
 

@@ -19,6 +19,10 @@ include_directories(./include)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
+##############################
+#test
+##############################
+add_executable(test test/test.cpp)
 
 ##############################
 #Localization

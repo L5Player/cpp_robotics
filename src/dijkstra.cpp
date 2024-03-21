@@ -233,7 +233,7 @@ void dijkstra_star_planning(float sx, float sy,
   // std::string int_count = std::to_string(count);
   // cv::imwrite("./pngs/"+std::string(5-int_count.length(), '0').append(int_count)+".png", bg);
   cv::imshow("dijkstra", bg);
-  cv::waitKey(5);
+  cv::waitKey(5000);
 };
 
 

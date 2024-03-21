@@ -39,6 +39,9 @@
 
 using namespace cpprobotics;
 
+static float g_target_speed = TARGET_SPEED;
+
+static Vec_Path g_all_path_list;
 
 float sum_of_power(std::vector<float> value_list){
   float sum = 0;
@@ -62,8 +65,8 @@ Vec_Path calc_frenet_paths(
         fp.d_dd.push_back(lat_qp.calc_second_derivative(t));
         fp.d_ddd.push_back(lat_qp.calc_third_derivative(t));
       }
-      for(float tv=TARGET_SPEED - D_T_S * N_S_SAMPLE;
-          tv < TARGET_SPEED + D_T_S * N_S_SAMPLE;
+      for(float tv=g_target_speed - D_T_S * N_S_SAMPLE;
+          tv < g_target_speed + D_T_S * N_S_SAMPLE;
           tv+=D_T_S){
 
         FrenetPath fp_bot = fp;
@@ -86,7 +89,7 @@ Vec_Path calc_frenet_paths(
 
         float Jp = sum_of_power(fp.d_ddd);
         float Js = sum_of_power(fp_bot.s_ddd);
-        float ds = (TARGET_SPEED - fp_bot.s_d.back());
+        float ds = (g_target_speed - fp_bot.s_d.back());
 
         fp_bot.cd = KJ * Jp + KT * Ti + KD * std::pow(fp_bot.d.back(), 2);
         fp_bot.cv = KJ * Js + KT * Ti + KD * ds;
@@ -100,6 +103,8 @@ Vec_Path calc_frenet_paths(
 };
 
 void calc_global_paths(Vec_Path & path_list, Spline2D csp){
+  std::cout << "path size: " << path_list.size() << std::endl;
+  g_all_path_list.clear();
   for (Vec_Path::iterator path_p=path_list.begin(); path_p!=path_list.end();path_p++){
     for(unsigned int i=0; i<path_p->s.size(); i++){
       if (path_p->s[i] >= csp.s.back()){
@@ -132,6 +137,8 @@ void calc_global_paths(Vec_Path & path_list, Spline2D csp){
         path_p->max_curvature = path_p->c.back();
       }
     }
+
+    g_all_path_list.emplace_back(*path_p);
   }
 };
 
@@ -145,6 +152,18 @@ bool check_collision(FrenetPath path, const Vec_Poi ob){
     }
   }
   return true;
+};
+
+bool check_adc_collision(FrenetPath path, const Vec_Poi ob){
+  for(auto point:ob){
+    for(unsigned int i=0; i< path.x.size(); i++){
+      float dist = std::pow((path.x[i] - point[0]), 2) + std::pow((path.y[i] - point[1]), 2);
+      if (dist <= 3 * 3){
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 Vec_Path check_paths(Vec_Path path_list, const Vec_Poi ob){
@@ -224,6 +243,15 @@ int main(){
   for(int i=0; i<SIM_LOOP; i++){
     FrenetPath final_path = frenet_optimal_planning(
       csp_obj, s0, c_speed, c_d, c_d_d, c_d_dd, obstcles);
+
+    if(check_adc_collision(final_path,obstcles)){
+      g_target_speed = 10.0 / 3.6;
+      std::cout << "adc_collision : " << g_target_speed << std::endl;
+    }else{
+      g_target_speed = TARGET_SPEED;
+      std::cout << "adc_not_collision : " << g_target_speed << std::endl;
+    }
+
     s0 = final_path.s[1];
     c_d = final_path.d[1];
     c_d_d = final_path.d_d[1];
@@ -244,11 +272,25 @@ int main(){
         cv::Scalar(0, 0, 0),
         10);
     }
+    
+    for(auto path_show = g_all_path_list.begin() ; path_show != g_all_path_list.end(); ++path_show ){
+      for(unsigned int i=0; i<path_show->x.size(); i++){
+        if(fabs(path_show->x.back() - final_path.x.back()) > 1.0){
+          break;
+        }
+        cv::circle(
+          bg,
+          cv_offset(path_show->x[i], path_show->y[i], bg.cols, bg.rows),
+          40, cv::Scalar(255,192,203), -1);
+    }
+
     for(unsigned int i=0; i<final_path.x.size(); i++){
       cv::circle(
         bg,
         cv_offset(final_path.x[i], final_path.y[i], bg.cols, bg.rows),
         40, cv::Scalar(255, 0, 0), -1);
+    }
+
     }
 
     cv::circle(

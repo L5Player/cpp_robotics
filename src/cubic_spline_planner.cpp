@@ -20,8 +20,8 @@
 using namespace cpprobotics;
 
 int main(){
-  Vec_f x{-2.5, 0.0, 2.5, 5.0, 7.5, 3.0, -1.0};
-  Vec_f y{0.7, -6,   5,   6.5, 0.0, 5.0, -2.0};
+  Vec_f x{0.0, 10.0, 10.0, 10.0};
+  Vec_f y{0.0, 0.0, 10.0, 20.0};
   Vec_f r_x;
   Vec_f r_y;
   Vec_f ryaw;
@@ -38,7 +38,7 @@ int main(){
     rs.push_back(i);
   }
 
-  cv::Mat bg(2000, 2000, CV_8UC3, cv::Scalar(255, 255, 255));
+  cv::Mat bg(4000, 4000, CV_8UC3, cv::Scalar(255, 255, 255));
   for(unsigned int i=1; i<r_x.size(); i++){
     cv::line(
       bg,
@@ -54,23 +54,23 @@ int main(){
 
   cv::imwrite("./csp.png", bg);
 
-  //cv::Mat bg2(2000, 2000, CV_8UC3, cv::Scalar(255, 255, 255));
-  //cv::Mat bg3(2000, 2000, CV_8UC3, cv::Scalar(255, 255, 255));
-  //for(unsigned int i=1; i<rs.size(); i++){
-    //cv::line(
-      //bg2,
-      //cv_offset(rs[i-1], ryaw[i-1], bg.cols, bg.rows),
-      //cv_offset(rs[i], ryaw[i], bg.cols, bg.rows),
-      //cv::Scalar(0, 0, 0),
-      //10);
-    //cv::line(
-      //bg3,
-      //cv_offset(rs[i-1], rcurvature[i-1], bg.cols, bg.rows),
-      //cv_offset(rs[i], rcurvature[i], bg.cols, bg.rows),
-      //cv::Scalar(0, 0, 0),
-      //10);
-  //}
-  //cv::imwrite("./yaw.png", bg2);
-  //cv::imwrite("./curvature.png", bg3);
+  cv::Mat bg2(2000, 2000, CV_8UC3, cv::Scalar(255, 255, 255));
+  cv::Mat bg3(2000, 2000, CV_8UC3, cv::Scalar(255, 255, 255));
+  for(unsigned int i=1; i<rs.size(); i++){
+    cv::line(
+      bg2,
+      cv_offset(rs[i-1], ryaw[i-1], bg.cols, bg.rows),
+      cv_offset(rs[i], ryaw[i], bg.cols, bg.rows),
+      cv::Scalar(0, 0, 0),
+      10);
+    cv::line(
+      bg3,
+      cv_offset(rs[i-1], rcurvature[i-1], bg.cols, bg.rows),
+      cv_offset(rs[i], rcurvature[i], bg.cols, bg.rows),
+      cv::Scalar(0, 0, 0),
+      10);
+  }
+  cv::imwrite("./yaw.png", bg2);
+  cv::imwrite("./curvature.png", bg3);
 
 };
